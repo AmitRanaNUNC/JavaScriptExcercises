@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wikipedia Search Engine</title>
+    <style>
+        body{
+            width:100%;
+            margin:0;
+            padding:0;
+            box-sizing: border-box;
+        }
+
+        .logo{
+            width:100%;
+            max-width: 150px;
+            margin-bottom:20px;
+        }
+
+        .wikipedia-container{
+            width:100%;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            margin-top:15px;
+            overflow:hidden;
+        }
+
+        form{
+            max-width:100%;
+            /* overflow:hidden; */
+        }
+
+        .search-query{
+            width:600px;
+            padding:10px 5px;
+            font-size: medium;
+            text-align: left;
+            border-radius: 5px;
+            border:1px solid skyblue;
+            outline: none;
+            overflow:hidden;
+        }
+
+        .result-items{
+            padding:0 370px;
+        }
+
+        h3{
+            color:blue;
+            margin:0;
+            cursor: pointer;
+        }
+
+        .search-url{
+            display: block;
+            color:green;
+            text-decoration: none;
+        }
+
+        .result-snippet{
+            display: block;
+        }
+
+        .search-loading{
+            display:none;
+        }
+
+        @media (max-width:550px){
+            form{
+                width:80%;
+            }
+
+            .search-query{
+                max-width:100%;
+                margin:0;
+            }
+
+            .result-items{
+                padding:0 10%;
+            }
+        }
+
+        @media (min-width:550px) and (max-width:1060px){
+            form{
+                width:100%;
+                text-align: center;
+            }
+
+            .search-query{
+                max-width:60%;
+            }
+
+            .result-items{
+                padding:0 20%;
+            } 
+        }
+    </style>
+</head>
+<body>
+    <div class="wikipedia-container">
+            <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Wikipedia-logo-v2.svg/657px-Wikipedia-logo-v2.svg.png" alt="">
+        <form class="wiki-search-form" action="">
+            <input type="text" class="search-query" placeholder="Type a keyword and press Enter to search">
+        </form>
+        <hr>
+        <img class="search-loading" width="20%" src="https://miro.medium.com/max/1158/1*9EBHIOzhE1XfMYoKz1JcsQ.gif" alt="">
+        <div class="search-result"></div>
+    </div>
+    <script>
+        const form = document.querySelector(".wiki-search-form");
+        let searchResult = document.querySelector(".search-result");
+
+        form.addEventListener("submit", handleSubmit);
+        
+        function handleSubmit(event){
+            event.preventDefault();
+            searchResult.innerHTML = "";
+            const inputValue = document.querySelector(".search-query").value;
+            const searchValue = inputValue.trim();
+            if(inputValue != "")
+                document.querySelector(".search-loading").style.display = "block";
+            wikiSearch(searchValue);
+        }
+
+        function wikiSearch(searchQuery){
+            fetch("https://en.wikipedia.org/w/api.php?action=query&list=search&prop=info&inprop=url&utf8=&format=json&origin=*&srlimit=20&srsearch=" + searchQuery)
+            .then(response => {
+                return response.json();
+            })
+            .then(result =>{
+                displayResults(result);
+                document.querySelector(".search-loading").style.display = "none";
+            });
+        }
+
+        function displayResults(result){
+            const searchArray = result.query.search;
+            searchArray.forEach(element => {
+            const searchUrl = `https://en.wikipedia.org/?curid=${element.pageid}`;
+            searchResult.insertAdjacentHTML(
+                'beforeend' ,
+                `<div class="result-items">
+                <h3><a href="${searchUrl}" target="_blank">${element.title}</a></h3>
+                <a class="search-url" href="${searchUrl}">${searchUrl}</a>
+                <span class="result-snippet">${element.snippet}</span>
+                </div><br>`);
+            });
+        }
+    </script>
+</body>
+</html>
