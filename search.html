@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search/Filter Menu</title>
+    <style>
+
+        *{
+            box-sizing: border-box;
+        }
+        .container{
+            display: flex;
+        }
+        .search-items > *{
+            display:block;
+            text-decoration: none;
+            padding:10px;
+            margin-bottom:10px;
+            border:none;
+            width:100%;
+            overflow: hidden;
+        }
+
+        .search-items{
+            flex:30%;
+            background: #eee;
+        }
+
+        .page-content{
+            flex:70%;
+            padding:15px;
+            background: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="search-items">
+            <h2>Menu</h2>
+            <input type="text" id="search" onkeyup="mySearch()" placeholder="Search...">
+                <a href="">HTML</a>
+                <a href="">CSS</a>
+                <a href="">JavaScript</a>
+                <a href="">PHP</a>
+                <a href="">Python</a>
+                <a href="">jQuery</a>
+                <a href="">SQL</a>
+                <a href="">Bootstrap</a>
+                <a href="">Node.js</a>
+        </div>
+        <div class="page-content">
+            <h2>Page Content</h2>
+            <p>Start to type for a specific category/link inside the search bar to "filter" the search options.</p>
+    
+            <p>Some text..Some text..Some text..Some text..Some text..Some text..Some text..Some text..</p>
+                
+            <p>Some other text..Some text..Some text..Some text..Some text..Some text..Some text..Some text..</p>
+                
+            <p>Some text..</p>
+        </div>
+    </div>
+    <script>
+        function mySearch(){
+            var search = document.getElementById("search").value.toUpperCase();
+            var items = document.getElementsByTagName("a");
+            for(var i=0;i<items.length;i++){
+                if(items[i].innerHTML.toUpperCase().indexOf(search) > -1){
+                    items[i].style.display = "";
+                }else{
+                    items[i].style.display = "none";
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>overlay</title>
+    <style>
+
+        .overlay{
+            height:100%;
+            width:0;
+            background-color: rgba(0,0,0, 0.9);
+            position: fixed;
+            z-index: 1;
+            top:0;
+            left:0;
+            transition:0.5s;
+        }
+
+        .btn-closed{
+            position: absolute;
+            font-size:35px;
+            top:45px;
+            right:100px;
+        }
+
+        .overlay-content{
+            position: absolute;
+            top:25%;
+            width:100%;
+            text-align: center;
+        }
+
+        .overlay-content a{
+            display:block;
+            text-align: center;
+            text-decoration: none;
+            color:white;
+            padding:15px 0;
+            font-size: 35px;
+        }
+    </style>
+</head>
+<body>
+    <div id="nav" class="overlay">
+        <a href="" class="btn-closed" style="color:white" onclick="closeNav()">&times;</a>
+        <div class="overlay-content">
+            <a href="">About</a>
+            <a href="">Service</a>
+            <a href="">Clients</a>
+            <a href="">Contact</a>
+        </div>
+    </div>
+
+    <h2>Fullscreen Overlay Nav Example</h2>
+
+    <span style="font-size:25px;cursor: pointer;" onclick="openNav()">&#9776;open</span>
+
+    <script>
+        function openNav(){
+            document.getElementById("nav").style.width = "100%";
+        }
+
+        function closeNav(){
+            document.getElementById("nav").style.width = "0%";
+        }
+    </script>
+</body>
+</html>

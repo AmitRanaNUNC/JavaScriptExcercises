@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Quote</title>
+</head>
+<style>
+    body{
+        background-color: #c9bd95;
+        font-family:Arial, Helvetica, sans-serif;
+    }
+
+    .quote-container{
+        text-align: center;
+        width:45%;
+        height:75%;
+        background-color: white;
+        border-radius: 5px;
+        position: absolute;
+        top:50%;
+        left:50%;
+        transform: translate(-50%,-50%);
+        overflow: hidden;
+    }
+
+    button{
+        width:80%;
+        padding:10px;
+        margin:8px;
+        font-size: 15px;
+        border-radius:5px;
+        border:none;
+        color:white;
+        cursor: pointer;
+        outline:none;
+    }
+    
+    a{
+        text-decoration: none;
+        color:white;
+    }
+
+    .quote-heading{
+        border-bottom: 1px solid skyblue;
+        text-align: center;
+        padding: 20px;
+        font-size: 28px;
+    }
+
+    .quote{
+        padding:0 60px;
+        font-size: 25px;
+        font-weight: 100;
+        height:30vh;
+    }
+
+    @media (max-width:600px){
+        .quote-container{
+            width:90%;
+            height:80%;
+        }
+
+        .quote{
+            padding:0 25px;
+        }
+    }
+
+    @media (min-width:500px) and (max-width:1000px){
+        .quote-container{
+            width:85%;
+            height:80%;
+            overflow:auto;
+        }
+    }
+</style>
+<body>
+    <div class="quote-container">
+        <div class="quote-heading">
+            <span>Random Donald Trump Quotes</span>
+        </div>
+        <br>
+        <p class="quote"></p>
+        <button class="js-new-quote" style="background: #4A2B0F;">Generate a new quote</button>
+        <a class="tweet" href="" target="_blank"><button style="background: #1da1f2;">Tweet it!</button></a>
+    </div>
+    <script>
+        let newQuoteButton = document.querySelector(".js-new-quote");
+
+        function getQuote(){
+            fetch('https://api.whatdoestrumpthink.com/api/v1/quotes/random')
+            .then(response => {
+                return response.json();
+            })
+            .then(result => {
+                let quote = result.message;
+                document.querySelector(".quote").innerHTML = quote;
+                document.querySelector(".tweet").href = "https://twitter.com/intent/tweet?text="+ quote;
+            });
+        }
+
+        getQuote();
+
+        newQuoteButton.addEventListener("click", function(){
+            getQuote();
+        });
+    </script>
+</body>
+</html>
