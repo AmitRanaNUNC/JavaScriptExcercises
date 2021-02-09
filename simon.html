@@ -40,6 +40,12 @@
         margin-top: 35px;
     }
 
+    .heading{
+        text-align: center;
+        font-size:50px;
+        margin-top:0;
+    }
+
     .red-tile {
         background-color: #f25022;
         box-shadow: 0 0 0 1px #f25022 inset, 0 0 0 2px rgba(255, 255, 255, 0.15) inset, 0 8px 0 0 #c93a12, 0 8px 0 1px rgba(0, 0, 0, 0.4), 0 8px 8px 1px rgba(0, 0, 0, 0.5);
@@ -124,14 +130,18 @@
         margin-top:40px;
         font-size: 1.2rem;
     }
+
+    .unclickable {
+        pointer-events: none;
+    }
 </style>
 
 <body>
     <main class="game">
         <header>
-            <h1 style="text-align: center;font-size:50px;margin-top:0">Simon Game</h1>
+            <h1 class="heading">Simon Game</h1>
         </header>
-        <section class="game-tiles-container">
+        <section class="game-tiles-container unclickable">
             <div class="tile red-tile" data-tile="red"></div>
             <div class="tile green-tile" data-tile="green"></div>
             <div class="tile blue-tile" data-tile="blue"></div>
@@ -166,9 +176,17 @@
         let sequence = [];
         let humanSequence = [];
         let level = 0;
+        const heading = document.querySelector(".heading");
+        const tileContainer = document.querySelector(".game-tiles-container");
+        const info = document.querySelector(".info");
 
         const startButton  = document.querySelector(".start");
         startButton.addEventListener("click", startGame);
+        tileContainer.addEventListener("click", event => {
+            const {tile} = event.target.dataset;
+            if (tile)
+                handleClick(tile);
+        });
 
         function activateTile(color){
             const tile = document.querySelector(`[data-tile='${color}']`);
@@ -200,17 +218,68 @@
         function nextRound(){
             level += 1;
 
+            tileContainer.classList.add("unclickable");
+            info.innerHTML = "Wait for the computer";
+            heading.innerHTML = `Level ${level} of 20`;
+
             const nextSequence = [...sequence];
             nextSequence.push(nextStep());
             playRound(nextSequence);
+
+            sequence = [...nextSequence];
+            setTimeout(() => {
+                humanTurn(level);
+            }, level * 600 + 1000);
+        }
+
+        function handleClick(tile){
+            const index  = humanSequence.push(tile) - 1;
+            const sound = document.querySelector(`[data-sound='${tile}']`);
+            sound.play();
+
+            const remainingTaps = sequence.length - humanSequence.length;
+
+            if(humanSequence[index] != sequence[index]){
+                resetGame("Oops! Game over,you pressed the wrong tile");
+                return;
+            }
+            if(humanSequence.length === sequence.length){
+                if(humanSequence.length === 20){
+                    resetGame("You have completed all the level!");
+                    return;
+                }
+                humanSequence = [];
+                info.innerHTML = "Success! keep going";
+                setTimeout(()=>{
+                    nextRound();
+                }, 1000);
+                return;
+            }
+
+            info.innerHTML = `Your turn: ${remainingTaps} Tap${remainingTaps > 1 ? 's' :''}`;
         }
 
         function startGame(){
             startButton.classList.add("hidden");
-            const info = document.querySelector(".info");
             info.classList.remove("hidden");
             info.innerHTML = "Wait for the computer";
             nextRound();
+        }
+
+        function resetGame(text){
+            alert(text);
+            sequence = [];
+            humanSequence = [];
+            level = 0;
+            startButton.classList.remove('hidden');
+            heading.innerHTML = "Simon Game";
+            info.classList.add("hidden");
+            tileContainer.classList.add("unclickable");
+        }
+
+        function humanTurn(level){
+            tileContainer.classList.remove('unclickable');
+            info.innerHTML = `Your turn: ${level} Tap${level > 1 ? 's' :''}`;
         }
 
     </script>

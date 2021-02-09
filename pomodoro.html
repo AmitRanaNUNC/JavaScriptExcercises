@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer App</title>
+    <style>
+        body{
+            margin:0;
+            padding:0;
+            box-sizing: border-box;
+            background-color: var(--pomodoro);
+        }
+
+        :root{
+            --pomodoro:hsl(223, 25%, 40%);
+            --shortBreak:hsl(48, 23%, 40%);
+            --longBreak:hsl(105, 16%, 40%);
+        }
+
+        .container{
+            position: absolute;
+            top:50%;
+            left:50%;
+            transform: translate(-50%,-50%);
+            text-align: center;
+        }
+
+        .progrees-bar{
+            margin-bottom:50px;
+        }
+
+        .progrees-bar > *{
+            margin:2px;
+            padding:6px 12px;
+            font-size: 15px;
+            background-color: transparent;
+            color:white;
+            box-shadow: none;
+            border:1px solid transparent;
+            cursor: pointer;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .active{
+            border-color:white;
+        }
+
+        .timer{
+            font-size:15rem;
+            line-height: 1;
+        }
+
+        .timer-button{
+            width:35%;
+            font-size: 22px;
+            padding:15px 30px;
+            text-transform: uppercase;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="progrees-bar mode-buttons">
+            <button data-mode="pomodoro" class="active">Pomodoro</button>
+            <button data-mode="shortBreak">Short Break</button>
+            <button data-mode="longBreak">Long Break</button>
+        </div>
+        <div class="timer">
+            <span id="minutes">25</span>
+            <span id="separator">:</span>
+            <span id="seconds">00</span>
+        </div>
+        <button class="timer-button">start</button>
+    </div>
+    <script>
+        const timer = {
+            pomodoro:25,
+            shortBreak:5,
+            longBreak:15,
+            longBreakInterval:4
+        };
+
+        const modeButtons = document.querySelector(".mode-buttons");
+        modeButtons.addEventListener("click", handleMode);
+
+        function updateClock(){
+            const {remainingTime} = timer;
+            const minutes = `${remainingTime.minutes}`.padStart(2, '0');
+            const seconds = `${remainingTime.seconds}`.padStart(2, '0');
+
+            let min = document.getElementById("minutes");
+            let sec = document.getElementById("seconds");
+            min.innerHTML = minutes;
+            sec.innerHTML = seconds;
+        }
+
+        function switchMode(mode){
+            timer.mode = mode;
+            timer.remainingTime = {
+                total: timer[mode] * 60,
+                minutes:timer[mode],
+                seconds:0
+            }
+
+            document.querySelectorAll('button[data-model]')
+                .forEach(e => e.classList.remove('active'));
+            document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+            document.body.style.background = `var(--${mode})`;    
+
+            updateClock();
+        }
+
+        function handleMode(event){
+            const {mode} = event.target.dataset;
+            console.log(mode);
+            if(!mode) return;
+            
+            switchMode(mode);
+        }
+    </script>
+</body>
+</html>
