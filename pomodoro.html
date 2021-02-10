@@ -27,11 +27,11 @@
             text-align: center;
         }
 
-        .progrees-bar{
+        .buttons{
             margin-bottom:50px;
         }
 
-        .progrees-bar > *{
+        .buttons > *{
             margin:2px;
             padding:6px 12px;
             font-size: 15px;
@@ -60,11 +60,28 @@
             text-transform: uppercase;
             border-radius: 5px;
         }
+
+        #progress-bar{
+            position: fixed;
+            top:0;
+            width:100%;
+            height:12px;
+            background-color: transparent;
+        }
+
+        #progress-bar::-webkit-progress-bar {
+            background-color: rgba(0, 0, 0, 0.1);;
+        }
+
+        #progress-bar::-webkit-progress-value {
+            background-color: #fff;
+        }
     </style>
 </head>
 <body>
+    <progress id="progress-bar" value="0"></progress>
     <div class="container">
-        <div class="progrees-bar mode-buttons">
+        <div class="buttons mode-buttons">
             <button data-mode="pomodoro" class="active">Pomodoro</button>
             <button data-mode="shortBreak">Short Break</button>
             <button data-mode="longBreak">Long Break</button>
@@ -74,19 +91,85 @@
             <span id="separator">:</span>
             <span id="seconds">00</span>
         </div>
-        <button class="timer-button">start</button>
+        <button id="start-button" class="timer-button" data-action="start">start</button>
     </div>
     <script>
         const timer = {
-            pomodoro:25,
-            shortBreak:5,
-            longBreak:15,
-            longBreakInterval:4
+            pomodoro:1,
+            shortBreak:1,
+            longBreak:1,
+            longBreakInterval:4,
+            sessions:0
         };
+        
+        let interval;
+
+        let mainButton = document.getElementById("start-button");
+        mainButton.addEventListener('click', ()=>{
+            let {action} = mainButton.dataset;
+            if(action == 'start')
+                startTimer();
+            else
+                stopTimer();   
+        });
 
         const modeButtons = document.querySelector(".mode-buttons");
         modeButtons.addEventListener("click", handleMode);
 
+        function getRemainingTime(endTime){
+            let currentTime = Date.parse(new Date());
+            let difference = endTime - currentTime;
+
+            let total = Number.parseInt(difference / 1000);
+            let minutes = Number.parseInt(total / 60);
+            let seconds = Number.parseInt(total % 60);
+
+            return {total,minutes,seconds};
+        }
+
+        function startTimer(){
+            let {total} = timer.remainingTime;
+            let endTime = Date.parse(new Date()) + total * 1000;
+
+            if(timer.mode === 'pomodoro')
+                timer.sessions++;
+            mainButton.dataset.action = 'stop';
+            mainButton.innerHTML = 'stop';
+            mainButton.classList.add('active');
+
+            interval = setInterval(function(){
+                timer.remainingTime = getRemainingTime(endTime);
+                updateClock();
+                
+                total = timer.remainingTime.total;
+                if(total <= 0){
+                    clearInterval(interval);
+
+                    switch (timer.mode) {
+                        case 'pomodoro':
+                            if(timer.sessions % timer.longBreakInterval === 0)
+                                switchMode('longBreak');
+                            else
+                                switchMode('shortBreak');    
+                            break;
+                    
+                        default:
+                            switchMode('pomodoro');
+                            break;
+                    }
+                    startTimer();
+                } 
+            }, 1000);
+        }
+
+        function stopTimer(){
+            clearInterval(interval);
+
+            mainButton.dataset.action = 'start';
+            mainButton.innerHTML = 'start';
+            mainButton.classList.remove('active');
+        }
+        
         function updateClock(){
             const {remainingTime} = timer;
             const minutes = `${remainingTime.minutes}`.padStart(2, '0');
@@ -96,6 +179,9 @@
             let sec = document.getElementById("seconds");
             min.innerHTML = minutes;
             sec.innerHTML = seconds;
+
+            let progress = document.getElementById("progress-bar");
+            progress.value = timer[timer.mode] * 60 - timer.remainingTime.total;
         }
 
         function switchMode(mode){
@@ -106,21 +192,27 @@
                 seconds:0
             }
 
-            document.querySelectorAll('button[data-model]')
+            document.querySelectorAll('button[data-mode]')
                 .forEach(e => e.classList.remove('active'));
             document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
             document.body.style.background = `var(--${mode})`;    
+            document.getElementById("progress-bar").setAttribute('max', timer.remainingTime.total);
 
             updateClock();
         }
 
         function handleMode(event){
             const {mode} = event.target.dataset;
-            console.log(mode);
             if(!mode) return;
             
             switchMode(mode);
+            stopTimer();
         }
+
+        document.addEventListener('DOMContentLoaded', ()=>{
+            switchMode('pomodoro');
+        });
+
     </script>
 </body>
 </html>
